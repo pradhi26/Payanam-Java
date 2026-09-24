@@ -19,6 +19,15 @@
         <mainClass>com.payanam.Main</mainClass>
     </properties>
 
+    <dependencies>
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>4.13.2</version>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+
     <build>
         <sourceDirectory>src/main/java</sourceDirectory>
         <resources>
