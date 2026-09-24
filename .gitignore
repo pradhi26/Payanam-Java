@@ -1,0 +1,10 @@
+target/
+bin/
+*.class
+*.log
+.DS_Store
+Thumbs.db
+.idea/
+*.iml
+.vscode/
+data/database.json.bak

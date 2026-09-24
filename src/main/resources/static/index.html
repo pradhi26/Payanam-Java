@@ -1,0 +1,629 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Payanam | Tourist Booking & Travel Platform</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Playfair+Display:ital,wght@0,600;0,700;1,600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <!-- Top Notification / Status Banner -->
+    <header class="navbar" id="navbar">
+        <div class="nav-container">
+            <a href="#" class="brand" onclick="switchTab('explore')">
+                <div class="brand-icon"><i class="fa-solid fa-compass"></i></div>
+                <div class="brand-text">
+                    <span class="brand-name">Payanam</span>
+                    <span class="brand-tag">JOURNEY BEYOND</span>
+                </div>
+            </a>
+
+            <nav class="nav-links">
+                <button class="nav-link active" id="tab-btn-explore" onclick="switchTab('explore')">
+                    <i class="fa-solid fa-earth-americas"></i> Explore Packages
+                </button>
+                <button class="nav-link" id="tab-btn-mytrips" onclick="switchTab('mytrips')">
+                    <i class="fa-solid fa-suitcase-rolling"></i> My Trips
+                </button>
+                <button class="nav-link" id="tab-btn-reviews" onclick="switchTab('reviews')">
+                    <i class="fa-solid fa-star"></i> Reviews
+                </button>
+                <button class="nav-link admin-only" id="tab-btn-admin" style="display:none;" onclick="switchTab('admin')">
+                    <i class="fa-solid fa-shield-halved"></i> Admin Portal
+                </button>
+            </nav>
+
+            <div class="nav-actions">
+                <div id="auth-logged-out" class="auth-buttons">
+                    <button class="btn btn-outline" onclick="openModal('modal-login')">
+                        <i class="fa-solid fa-arrow-right-to-bracket"></i> Login
+                    </button>
+                    <button class="btn btn-primary" onclick="openModal('modal-register')">
+                        <i class="fa-solid fa-user-plus"></i> Register
+                    </button>
+                </div>
+                <div id="auth-logged-in" class="user-pill" style="display:none;">
+                    <div class="user-avatar" id="nav-user-avatar">U</div>
+                    <div class="user-info">
+                        <span class="user-name" id="nav-user-name">User</span>
+                        <span class="user-badge" id="nav-user-role">Tourist</span>
+                    </div>
+                    <button class="btn-icon" onclick="logout()" title="Logout">
+                        <i class="fa-solid fa-power-off"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main class="main-content">
+        <!-- Toast Notification Area -->
+        <div id="toast-container" class="toast-container"></div>
+
+        <!-- ================= EXPLORE TAB ================= -->
+        <section id="tab-explore" class="tab-pane active">
+            <!-- Hero Banner -->
+            <div class="hero-banner">
+                <div class="hero-overlay"></div>
+                <div class="hero-content">
+                    <div class="hero-pill"><i class="fa-solid fa-sparkles"></i> Unforgettable Travel Experiences</div>
+                    <h1 class="hero-title">Discover Your Next Journey with <span>Payanam</span></h1>
+                    <p class="hero-subtitle">Handcrafted tourist packages, verified stays, and seamless reservations backed by our modern Java platform.</p>
+
+                    <!-- Search & Filter Card -->
+                    <div class="search-bar-card">
+                        <div class="search-input-group">
+                            <i class="fa-solid fa-magnifying-glass"></i>
+                            <input type="text" id="search-input" placeholder="Search destination (e.g. Goa, Manali, Kerala)..." oninput="debounceSearch()">
+                        </div>
+                        <div class="search-filters">
+                            <select id="category-filter" onchange="filterPackages()">
+                                <option value="all">All Categories</option>
+                                <option value="Beach">Beach</option>
+                                <option value="Hill Station">Hill Station</option>
+                                <option value="Adventure">Adventure</option>
+                                <option value="Backwaters">Backwaters</option>
+                                <option value="Heritage">Heritage</option>
+                            </select>
+                            <select id="sort-filter" onchange="filterPackages()">
+                                <option value="default">Sort by: Recommended</option>
+                                <option value="price-low">Price: Low to High</option>
+                                <option value="price-high">Price: High to Low</option>
+                                <option value="rating">Top Rated</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Stats Bar -->
+            <div class="quick-stats-row">
+                <div class="stat-pill"><i class="fa-solid fa-map-location-dot"></i> <span id="stat-package-count">6</span> Curated Destinations</div>
+                <div class="stat-pill"><i class="fa-solid fa-users"></i> 1,200+ Happy Travelers</div>
+                <div class="stat-pill"><i class="fa-solid fa-award"></i> 4.8★ Average Experience</div>
+                <div class="stat-pill"><i class="fa-solid fa-shield-heart"></i> 100% Verified Bookings</div>
+            </div>
+
+            <!-- Packages Section -->
+            <div class="section-container">
+                <div class="section-header">
+                    <div>
+                        <h2 class="section-title">Popular Tour Packages</h2>
+                        <p class="section-desc">Choose from our top-rated journeys curated by travel experts.</p>
+                    </div>
+                    <div class="active-filter-chips" id="filter-chips"></div>
+                </div>
+
+                <div class="packages-grid" id="packages-grid">
+                    <!-- Populated dynamically by app.js -->
+                    <div class="loading-spinner"><i class="fa-solid fa-circle-notch fa-spin"></i> Loading Packages...</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================= MY TRIPS TAB ================= -->
+        <section id="tab-mytrips" class="tab-pane">
+            <div class="section-container page-header">
+                <div class="section-header">
+                    <div>
+                        <h1 class="page-title"><i class="fa-solid fa-suitcase-rolling"></i> My Trips & Reservations</h1>
+                        <p class="section-desc">Manage your booked getaways, check confirmation details, or cancel upcoming travels.</p>
+                    </div>
+                    <div>
+                        <button class="btn btn-outline" onclick="loadBookings()">
+                            <i class="fa-solid fa-rotate-right"></i> Refresh
+                        </button>
+                    </div>
+                </div>
+
+                <div id="mytrips-container" class="mytrips-list">
+                    <!-- Populated dynamically -->
+                </div>
+            </div>
+        </section>
+
+        <!-- ================= REVIEWS TAB ================= -->
+        <section id="tab-reviews" class="tab-pane">
+            <div class="section-container page-header">
+                <div class="reviews-header-card">
+                    <div class="rating-overview">
+                        <div class="big-score" id="review-avg-score">4.8</div>
+                        <div class="stars-row" id="review-avg-stars">
+                            <i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star-half-stroke"></i>
+                        </div>
+                        <div class="review-count-text" id="review-total-count">Based on verified traveler reviews</div>
+                    </div>
+                    <div class="review-cta">
+                        <h3>Traveled with Payanam recently?</h3>
+                        <p>Share your journey with fellow wanderers and help our travel community grow.</p>
+                        <button class="btn btn-primary" onclick="openReviewModal()">
+                            <i class="fa-solid fa-pen-nib"></i> Write a Review
+                        </button>
+                    </div>
+                </div>
+
+                <div class="section-header" style="margin-top: 35px;">
+                    <div>
+                        <h2 class="section-title">Community Experiences</h2>
+                        <p class="section-desc">Real stories and feedback from our travelers across India.</p>
+                    </div>
+                </div>
+
+                <div class="reviews-grid" id="reviews-grid">
+                    <!-- Populated dynamically -->
+                </div>
+            </div>
+        </section>
+
+        <!-- ================= ADMIN TAB ================= -->
+        <section id="tab-admin" class="tab-pane">
+            <div class="section-container page-header">
+                <div class="section-header">
+                    <div>
+                        <span class="badge badge-admin"><i class="fa-solid fa-shield"></i> Administrator Control Center</span>
+                        <h1 class="page-title" style="margin-top:8px;">Admin Dashboard</h1>
+                        <p class="section-desc">Monitor live reservations, manage travel packages, and inspect platform analytics.</p>
+                    </div>
+                    <div class="admin-actions-bar">
+                        <button class="btn btn-primary" onclick="openModal('modal-add-package')">
+                            <i class="fa-solid fa-plus"></i> Add New Package
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Admin Metrics Grid -->
+                <div class="metrics-grid">
+                    <div class="metric-card">
+                        <div class="metric-icon" style="background:#e0f2fe; color:#0284c7;">
+                            <i class="fa-solid fa-ticket"></i>
+                        </div>
+                        <div class="metric-info">
+                            <span class="metric-label">Total Bookings</span>
+                            <span class="metric-val" id="admin-stat-bookings">-</span>
+                        </div>
+                    </div>
+
+                    <div class="metric-card">
+                        <div class="metric-icon" style="background:#dcfce7; color:#16a34a;">
+                            <i class="fa-solid fa-indian-rupee-sign"></i>
+                        </div>
+                        <div class="metric-info">
+                            <span class="metric-label">Total Revenue</span>
+                            <span class="metric-val" id="admin-stat-revenue">-</span>
+                        </div>
+                    </div>
+
+                    <div class="metric-card">
+                        <div class="metric-icon" style="background:#fef3c7; color:#d97706;">
+                            <i class="fa-solid fa-box-archive"></i>
+                        </div>
+                        <div class="metric-info">
+                            <span class="metric-label">Active Packages</span>
+                            <span class="metric-val" id="admin-stat-packages">-</span>
+                        </div>
+                    </div>
+
+                    <div class="metric-card">
+                        <div class="metric-icon" style="background:#f3e8ff; color:#9333ea;">
+                            <i class="fa-solid fa-users"></i>
+                        </div>
+                        <div class="metric-info">
+                            <span class="metric-label">Registered Users</span>
+                            <span class="metric-val" id="admin-stat-users">-</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Admin Tabs -->
+                <div class="admin-sections-grid">
+                    <!-- Manage Packages -->
+                    <div class="admin-box">
+                        <div class="box-title">
+                            <h3><i class="fa-solid fa-cube"></i> Manage Tour Packages</h3>
+                            <button class="btn btn-sm btn-outline" onclick="loadPackages()"><i class="fa-solid fa-rotate"></i></button>
+                        </div>
+                        <div class="table-responsive">
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>Destination</th>
+                                        <th>Duration</th>
+                                        <th>Price (₹)</th>
+                                        <th>Rating</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="admin-packages-table">
+                                    <!-- Populated dynamically -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- Manage Bookings -->
+                    <div class="admin-box">
+                        <div class="box-title">
+                            <h3><i class="fa-solid fa-receipt"></i> All Customer Reservations</h3>
+                            <button class="btn btn-sm btn-outline" onclick="loadAdminBookings()"><i class="fa-solid fa-rotate"></i></button>
+                        </div>
+                        <div class="table-responsive">
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th>Booking ID</th>
+                                        <th>Customer</th>
+                                        <th>Destination</th>
+                                        <th>Date</th>
+                                        <th>Amount</th>
+                                        <th>Status</th>
+                                        <th>Toggle Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="admin-bookings-table">
+                                    <!-- Populated dynamically -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-container">
+            <div class="footer-brand">
+                <div class="brand-text">
+                    <span class="brand-name" style="color:white; font-size:1.4rem;">Payanam</span>
+                    <span class="brand-tag">JOURNEY BEYOND</span>
+                </div>
+                <p>Enterprise Java Tourist Booking System. Re-engineered from Python to high-performance Java 21 web architecture.</p>
+            </div>
+            <div class="footer-col">
+                <h4>Quick Links</h4>
+                <a href="#" onclick="switchTab('explore')">Explore Packages</a>
+                <a href="#" onclick="switchTab('mytrips')">My Trips</a>
+                <a href="#" onclick="switchTab('reviews')">Customer Reviews</a>
+            </div>
+            <div class="footer-col">
+                <h4>Demo Credentials</h4>
+                <p><strong>Admin:</strong> admin@gmail.com / admin123</p>
+                <p><strong>Tourist:</strong> rahul@gmail.com / rahul123</p>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            &copy; 2026 Payanam Travel Technologies. Built with Java 21, REST Architecture & Modern Responsive Web.
+        </div>
+    </footer>
+
+    <!-- ================= MODALS ================= -->
+
+    <!-- Login Modal -->
+    <div class="modal-backdrop" id="modal-login">
+        <div class="modal-dialog">
+            <div class="modal-header">
+                <h3><i class="fa-solid fa-right-to-bracket"></i> Login to Payanam</h3>
+                <button class="btn-close" onclick="closeModal('modal-login')">&times;</button>
+            </div>
+            <form onsubmit="handleLoginSubmit(event)">
+                <div class="modal-body">
+                    <div class="quick-demo-logins">
+                        <span>1-Click Demo Login:</span>
+                        <div class="demo-btn-group">
+                            <button type="button" class="btn btn-sm btn-outline" onclick="fillLogin('admin@gmail.com', 'admin123')">
+                                <i class="fa-solid fa-shield"></i> Admin
+                            </button>
+                            <button type="button" class="btn btn-sm btn-outline" onclick="fillLogin('rahul@gmail.com', 'rahul123')">
+                                <i class="fa-solid fa-user"></i> Tourist
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Email Address</label>
+                        <input type="email" id="login-email" required placeholder="Enter your email">
+                    </div>
+                    <div class="form-group">
+                        <label>Password</label>
+                        <input type="password" id="login-password" required placeholder="Enter your password">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-text" onclick="closeModal('modal-login'); openModal('modal-register')">
+                        Need an account? Register
+                    </button>
+                    <button type="submit" class="btn btn-primary" id="btn-login-submit">
+                        <i class="fa-solid fa-arrow-right"></i> Login
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Register Modal -->
+    <div class="modal-backdrop" id="modal-register">
+        <div class="modal-dialog">
+            <div class="modal-header">
+                <h3><i class="fa-solid fa-user-plus"></i> Create Tourist Account</h3>
+                <button class="btn-close" onclick="closeModal('modal-register')">&times;</button>
+            </div>
+            <form onsubmit="handleRegisterSubmit(event)">
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label>Full Name</label>
+                        <input type="text" id="reg-name" required placeholder="e.g. Vikram Sharma">
+                    </div>
+                    <div class="form-group">
+                        <label>Email Address</label>
+                        <input type="email" id="reg-email" required placeholder="e.g. vikram@example.com">
+                    </div>
+                    <div class="form-group">
+                        <label>Password</label>
+                        <input type="password" id="reg-password" required placeholder="Choose a secure password">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-text" onclick="closeModal('modal-register'); openModal('modal-login')">
+                        Already have an account? Login
+                    </button>
+                    <button type="submit" class="btn btn-primary" id="btn-reg-submit">
+                        <i class="fa-solid fa-check"></i> Register
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Booking Modal -->
+    <div class="modal-backdrop" id="modal-booking">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-header">
+                <h3><i class="fa-solid fa-calendar-check"></i> Complete Your Booking</h3>
+                <button class="btn-close" onclick="closeModal('modal-booking')">&times;</button>
+            </div>
+            <form onsubmit="handleBookingSubmit(event)">
+                <div class="modal-body">
+                    <!-- Package Summary Card -->
+                    <div class="booking-package-summary">
+                        <img id="booking-pkg-img" src="" alt="Package Image">
+                        <div class="booking-pkg-details">
+                            <span class="category-pill" id="booking-pkg-cat">Category</span>
+                            <h4 id="booking-pkg-title">Destination</h4>
+                            <div class="booking-meta">
+                                <span><i class="fa-regular fa-clock"></i> <span id="booking-pkg-duration">Duration</span></span>
+                                <span><i class="fa-solid fa-star" style="color:#f59e0b;"></i> <span id="booking-pkg-rating">4.8</span></span>
+                            </div>
+                            <div class="pkg-price-tag">
+                                ₹<span id="booking-pkg-base-price">0</span> <small>per traveler</small>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label>Traveler Full Name *</label>
+                            <input type="text" id="book-name" required placeholder="Enter primary passenger name">
+                        </div>
+                        <div class="form-group">
+                            <label>Phone Number *</label>
+                            <input type="tel" id="book-phone" required placeholder="10-digit mobile number">
+                        </div>
+                        <div class="form-group">
+                            <label>Travel Date *</label>
+                            <input type="date" id="book-date" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Number of Travelers *</label>
+                            <div class="stepper-input">
+                                <button type="button" onclick="adjustTravellers(-1)"><i class="fa-solid fa-minus"></i></button>
+                                <input type="number" id="book-travellers" value="1" min="1" max="20" readonly>
+                                <button type="button" onclick="adjustTravellers(1)"><i class="fa-solid fa-plus"></i></button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Live Calculation Card -->
+                    <div class="price-breakdown-card">
+                        <div class="price-row">
+                            <span>Base Rate per Person:</span>
+                            <span>₹<span id="calc-base">0</span></span>
+                        </div>
+                        <div class="price-row">
+                            <span>Number of Travelers:</span>
+                            <span>&times; <span id="calc-count">1</span></span>
+                        </div>
+                        <div class="price-divider"></div>
+                        <div class="price-row total-row">
+                            <span>Total Payable Amount:</span>
+                            <span class="total-amount">₹<span id="calc-total">0</span></span>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline" onclick="closeModal('modal-booking')">Cancel</button>
+                    <button type="submit" class="btn btn-success" id="btn-confirm-booking">
+                        <i class="fa-solid fa-shield-check"></i> Confirm Reservation
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Review Modal -->
+    <div class="modal-backdrop" id="modal-review">
+        <div class="modal-dialog">
+            <div class="modal-header">
+                <h3><i class="fa-solid fa-star"></i> Leave a Review</h3>
+                <button class="btn-close" onclick="closeModal('modal-review')">&times;</button>
+            </div>
+            <form onsubmit="handleReviewSubmit(event)">
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label>Your Name *</label>
+                        <input type="text" id="rev-name" required placeholder="Enter your name">
+                    </div>
+                    <div class="form-group">
+                        <label>Destination *</label>
+                        <select id="rev-dest">
+                            <option value="Goa">Goa</option>
+                            <option value="Ooty">Ooty</option>
+                            <option value="Manali">Manali</option>
+                            <option value="Kerala">Kerala</option>
+                            <option value="Ladakh">Ladakh</option>
+                            <option value="Jaipur">Jaipur</option>
+                            <option value="General Experience">Overall Platform</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Your Rating (1 to 5 Stars) *</label>
+                        <div class="star-picker" id="star-picker">
+                            <i class="fa-solid fa-star active" data-val="1" onclick="setRating(1)"></i>
+                            <i class="fa-solid fa-star active" data-val="2" onclick="setRating(2)"></i>
+                            <i class="fa-solid fa-star active" data-val="3" onclick="setRating(3)"></i>
+                            <i class="fa-solid fa-star active" data-val="4" onclick="setRating(4)"></i>
+                            <i class="fa-solid fa-star active" data-val="5" onclick="setRating(5)"></i>
+                        </div>
+                        <input type="hidden" id="rev-rating" value="5">
+                    </div>
+                    <div class="form-group">
+                        <label>Share Your Experience *</label>
+                        <textarea id="rev-comment" rows="4" required placeholder="What was your experience like? Mention highlights, stays, or suggestions..."></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline" onclick="closeModal('modal-review')">Cancel</button>
+                    <button type="submit" class="btn btn-primary" id="btn-submit-review">
+                        <i class="fa-solid fa-paper-plane"></i> Submit Review
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Add Package Modal (Admin) -->
+    <div class="modal-backdrop" id="modal-add-package">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-header">
+                <h3><i class="fa-solid fa-plus-circle"></i> Add New Tour Package</h3>
+                <button class="btn-close" onclick="closeModal('modal-add-package')">&times;</button>
+            </div>
+            <form onsubmit="handleAddPackageSubmit(event)">
+                <div class="modal-body">
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label>Destination Name *</label>
+                            <input type="text" id="pkg-dest" required placeholder="e.g. Shimla">
+                        </div>
+                        <div class="form-group">
+                            <label>Package Price (₹ per person) *</label>
+                            <input type="number" id="pkg-price" required placeholder="e.g. 14000">
+                        </div>
+                        <div class="form-group">
+                            <label>Duration *</label>
+                            <input type="text" id="pkg-duration" required placeholder="e.g. 4 Days / 3 Nights">
+                        </div>
+                        <div class="form-group">
+                            <label>Category *</label>
+                            <select id="pkg-category">
+                                <option value="Hill Station">Hill Station</option>
+                                <option value="Beach">Beach</option>
+                                <option value="Adventure">Adventure</option>
+                                <option value="Backwaters">Backwaters</option>
+                                <option value="Heritage">Heritage</option>
+                                <option value="Spiritual">Spiritual</option>
+                            </select>
+                        </div>
+                        <div class="form-group full-width">
+                            <label>Image URL (Unsplash or direct link)</label>
+                            <input type="url" id="pkg-img" placeholder="https://images.unsplash.com/...">
+                        </div>
+                        <div class="form-group full-width">
+                            <label>Inclusions (comma separated)</label>
+                            <input type="text" id="pkg-inclusions" placeholder="Resort Stay, Daily Breakfast, Sightseeing Cab, Guide">
+                        </div>
+                        <div class="form-group full-width">
+                            <label>Description</label>
+                            <textarea id="pkg-desc" rows="3" placeholder="Highlight what makes this package special..."></textarea>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline" onclick="closeModal('modal-add-package')">Cancel</button>
+                    <button type="submit" class="btn btn-primary" id="btn-save-package">
+                        <i class="fa-solid fa-floppy-disk"></i> Save Package
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Booking Confirmation Modal -->
+    <div class="modal-backdrop" id="modal-booking-success">
+        <div class="modal-dialog text-center" style="max-width: 450px;">
+            <div class="modal-body" style="padding: 30px 20px;">
+                <div class="success-icon-bubble">
+                    <i class="fa-solid fa-check"></i>
+                </div>
+                <h3 style="margin-top:15px; font-size:1.5rem;">Booking Confirmed!</h3>
+                <p style="color:#64748b; font-size:0.95rem; margin-top:5px;">
+                    Your journey with Payanam is locked in. We have registered your reservation.
+                </p>
+                <div class="ticket-preview-box">
+                    <div class="ticket-row">
+                        <span>Reference ID:</span>
+                        <strong id="success-booking-id">BK-1003</strong>
+                    </div>
+                    <div class="ticket-row">
+                        <span>Destination:</span>
+                        <strong id="success-dest">Goa</strong>
+                    </div>
+                    <div class="ticket-row">
+                        <span>Travel Date:</span>
+                        <strong id="success-date">2026-10-15</strong>
+                    </div>
+                    <div class="ticket-row">
+                        <span>Total Paid:</span>
+                        <strong id="success-amount" style="color:#16a34a;">₹24,000</strong>
+                    </div>
+                </div>
+                <div style="margin-top: 25px; display:flex; gap:10px; justify-content:center;">
+                    <button class="btn btn-primary" onclick="closeModal('modal-booking-success'); switchTab('mytrips')">
+                        <i class="fa-solid fa-suitcase"></i> View in My Trips
+                    </button>
+                    <button class="btn btn-outline" onclick="closeModal('modal-booking-success')">
+                        Close
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/app.js"></script>
+</body>
+</html>
