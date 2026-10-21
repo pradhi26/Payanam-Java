@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
         - name: payanam-container
-          image: pradhi26/payanam-app:latest
+          image: payanam-app:latest
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 8085
