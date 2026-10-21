@@ -36,11 +36,17 @@ pipeline {
             }
         }
 
+
         stage('Deploy to Kubernetes') {
             steps {
-                bat 'kubectl apply -f k8s/deployment.yaml'
-                bat 'kubectl apply -f k8s/service.yaml'
-                bat 'kubectl rollout status deployment/payanam-deployment --timeout=120s'
+                withCredentials([file(
+                    credentialsId: 'kubeconfig-cred',
+                    variable: 'KUBECONFIG_FILE'
+                )]) {
+                    bat 'set KUBECONFIG=%KUBECONFIG_FILE% && kubectl apply -f k8s/deployment.yaml'
+                    bat 'set KUBECONFIG=%KUBECONFIG_FILE% && kubectl apply -f k8s/service.yaml'
+                    bat 'set KUBECONFIG=%KUBECONFIG_FILE% && kubectl rollout status deployment/payanam-deployment --timeout=120s'
+                }
             }
         }
     }
